@@ -5,8 +5,8 @@
 #include <assert.h>
 #include <string.h>
 
-#define SCREEN_WIDTH 1000
-#define SCREEN_HEIGHT 600
+//#define SCREEN_WIDTH 1000
+//#define SCREEN_HEIGHT 600
 #define CELL_SIZE 100
 #define CELL_GAP 5
 
@@ -20,7 +20,7 @@
 
 static float ellapsed_time = 0.0f;
 static bool show_pair = false;
-
+static bool show_field = true;
 
 typedef struct {
     bool open;
@@ -120,22 +120,26 @@ void cell_event_handler(Cell *cell, bool is_cell_hovered)
 }
 
 
-int main(void)
+void init_pairs_game(void) 
 {
     assert(LINES*COLUMNS % 2 == 0 && "Must be even");
             
     srand(time(NULL));
 
-    SetTraceLogLevel(LOG_WARNING);
-    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "memeC");
-    SetTargetFPS(60);
+    ellapsed_time = 0.0f;
+    show_pair = false;
+    show_field = true;
     
+    picked_cells[0] = NULL;
+    picked_cells[1] = NULL;
+
     init_field();
     field_change_open_value(true);
-    bool show_field = true;
     //size_t lifes = 3;
+}
 
-    while (!WindowShouldClose()) {
+void draw_pairs_screen(void)
+{
         if (IsKeyPressed(KEY_R)) {
             picked_cells[0] = NULL;
             picked_cells[1] = NULL;
@@ -164,10 +168,9 @@ int main(void)
             }
         }
         
-        BeginDrawing();
             ClearBackground(BACKGROUND_COLOR);
-            int sx = SCREEN_WIDTH/2 - (COLUMNS*CELL_SIZE + (COLUMNS-1)*CELL_GAP)/2;
-            int sy = SCREEN_HEIGHT/2 - (LINES*CELL_SIZE + (LINES-1)*CELL_GAP)/2;
+            int sx = GetScreenWidth()/2 - (COLUMNS*CELL_SIZE + (COLUMNS-1)*CELL_GAP)/2;
+            int sy = GetScreenHeight()/2 - (LINES*CELL_SIZE + (LINES-1)*CELL_GAP)/2;
             
             for (int line = 0; line < LINES; line++) {
                 for (int column = 0; column < COLUMNS; column++) {
@@ -195,8 +198,4 @@ int main(void)
                     } 
                 }
             } 
-        EndDrawing();
-    }
-    CloseWindow();
-    return 0;
 }

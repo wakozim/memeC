@@ -45,6 +45,11 @@ typedef enum {
     USER_LOSE
 } GameState;
 
+GameState state;
+
+static float ttime = 0.0f;
+static int index = 0;
+
 
 bool add_number_to_sequence(void) 
 {
@@ -78,32 +83,24 @@ void print_sequence(void)
         printf("sequence[%d] = %d\n", i, sequence[i]); 
 }
 
-
-int main(void) 
+void init_sequence_game(void)
 {
     srand(time(NULL));
-
-    SetTraceLogLevel(LOG_WARNING);
-    InitWindow(600, 600, "memeC");
-    SetTargetFPS(60);
-    
     init_game();
-    //print_sequence();
+    //state = SHOW_SEQUENCE;
+    state = USER_WIN;
+    ttime = 0.0f;
+    index = 0;
+}
 
-    //GameState state = SHOW_SEQUENCE;
-    GameState state = USER_WIN;
-    float time = 0.0f;
-    int index = 0;
-
-    while (!WindowShouldClose()) {
-        BeginDrawing();
+void draw_sequence_screen(void) 
+{
             ClearBackground(BACKGROUND_COLOR);
-            
 
             if (IsKeyPressed(KEY_R)) {
                 init_game();
                 state = SHOW_SEQUENCE;
-                time = 0.0f;
+                ttime = 0.0f;
             }
 #if 0 
             int ty = 0;
@@ -118,7 +115,7 @@ int main(void)
             DrawText(TextFormat("time = %f", time), 0, ty, 30, RED); 
 #endif //DEBUG
 
-            if (time >= 1.0f) {
+            if (ttime >= 1.0f) {
                 switch (state) {
                 case SHOW_SEQUENCE: {
                     index += 1;
@@ -126,13 +123,13 @@ int main(void)
                         index = 0;
                         state = USER_GUESS;
                     }               
-                    time = 0.0f;
+                    ttime = 0.0f;
                 } break;
                 case USER_GUESS_WRONG: {
                     state = SHOW_SEQUENCE;
                     user_guess_lenght = 0;
                     user_guess_index = -1;
-                    time = 0.0f;                 
+                    ttime = 0.0f;                 
                 } break; 
                 case USER_GUESS_CORRECT: {
                     user_guess_lenght = 0;
@@ -141,13 +138,13 @@ int main(void)
                         state = USER_WIN; 
                     else 
                         state = SHOW_SEQUENCE;
-                    time = 0.0f;                   
+                    ttime = 0.0f;                   
                 } break;
                 default: 
                     break;
                 } 
             } else {
-                time += GetFrameTime();
+                ttime += GetFrameTime();
             } 
 
             int bar_cx = GetScreenWidth() / 2 - (BAR_WIDTH / 2);
@@ -174,7 +171,7 @@ int main(void)
                     Color color = CELL_DEFAULT_COLOR; 
                     switch (state) {
                     case SHOW_SEQUENCE: { 
-                        if (time > 0.2f && sequence[index] == cell_index) 
+                        if (ttime > 0.2f && sequence[index] == cell_index) 
                             color = CELL_SHOWCASE_COLOR;
                     } break;
                     case USER_GUESS:
@@ -183,6 +180,8 @@ int main(void)
                         if (user_guess_index == cell_index) 
                             color = CELL_USER_CHOICE_COLOR;
                     } break;
+                    default: 
+                        break;
                     }
                     
                     DrawRectangleRec(cell_rect, color); 
@@ -194,10 +193,10 @@ int main(void)
                                 user_guess_lenght += 1;
                                 if (user_guess_lenght >= sequence_lenght) {
                                     state = USER_GUESS_CORRECT; 
-                                    time = 0.0f;
+                                    ttime = 0.0f;
                                 }
                             } else {
-                                time = 0.0f;
+                                ttime = 0.0f;
                                 state = USER_GUESS_WRONG;
                             }
                         } 
@@ -230,9 +229,6 @@ int main(void)
                 int restart_text_y = win_text_y + 10 + win_text_size; 
                 DrawText(restart_text, restart_text_x, restart_text_y, restart_text_size, GREEN);
             }
-        EndDrawing();
-    }
-    CloseWindow();
 }
 
 
