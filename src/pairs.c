@@ -199,3 +199,5 @@ void draw_pairs_screen(void)
                 }
             } 
 }
+
+// TODO: Show time elapsed time at the end
