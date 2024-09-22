@@ -34,7 +34,13 @@ typedef struct {
 } Cell;
 
 static Cell field[LINES][COLUMNS] = {0};
-static Cell *picked_cells[2]      = {NULL};
+
+typedef struct Pair {
+    Cell *first;
+    Cell *second;
+} Pair;
+
+static Pair picked_cells = {0};
 
 int random_number(int min, int max)
 {
@@ -106,20 +112,20 @@ void cell_event_handler(Cell *cell, bool is_cell_hovered)
     if (is_cell_hovered && IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
         if (cell->open) {
             return;
-        } else if (picked_cells[0] != NULL && picked_cells[0] != cell) {
-            if (cell->value == picked_cells[0]->value) {
+        } else if (picked_cells.first != NULL && picked_cells.first != cell) {
+            if (cell->value == picked_cells.first->value) {
                 cell->open = true;
-                picked_cells[0]->open = true;
-                picked_cells[0] = NULL;
+                picked_cells.first->open = true;
+                picked_cells.first = NULL;
             } else {
-                picked_cells[1] = cell;
-                picked_cells[0]->open = true;
-                picked_cells[1]->open = true;
+                picked_cells.second = cell;
+                picked_cells.second->open = true;
+                picked_cells.second->open = true;
                 state = STATE_SHOW_PAIR; 
             }
         } else {
-            picked_cells[0] = cell;
-            picked_cells[0]->open = true;
+            picked_cells.first = cell;
+            picked_cells.first->open = true;
         } 
     }
 }
@@ -135,8 +141,8 @@ void init_pairs_game(void)
     ttime = 0.0f; 
     state = STATE_SHOW_FIELD;
     
-    picked_cells[0] = NULL;
-    picked_cells[1] = NULL;
+    picked_cells.first  = NULL;
+    picked_cells.second = NULL;
 
     init_field();
     field_change_open_value(true);
@@ -146,8 +152,8 @@ void init_pairs_game(void)
 void draw_pairs_screen(void)
 {
         if (IsKeyPressed(KEY_R)) {
-            picked_cells[0] = NULL;
-            picked_cells[1] = NULL;
+            picked_cells.first  = NULL;
+            picked_cells.second = NULL;
             state = STATE_SHOW_FIELD;
             ttime = 0.0f;
             init_field();
@@ -165,10 +171,10 @@ void draw_pairs_screen(void)
             ttime += GetFrameTime();
             if (ttime > 0.5f) {
                 state = STATE_USER_TURN;
-                picked_cells[0]->open = false;
-                picked_cells[1]->open = false;
-                picked_cells[0] = NULL;
-                picked_cells[1] = NULL;
+                picked_cells.first->open = false;
+                picked_cells.second->open = false;
+                picked_cells.first = NULL;
+                picked_cells.second = NULL;
                 ttime = 0.0f;
             }
         }
