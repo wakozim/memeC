@@ -11,9 +11,10 @@
 #define LINES 4
 #define COLUMNS 5
 
-#define BACKGROUND_COLOR WHITE
-#define CELL_COLOR GRAY
-#define OPEN_CELL_COLOR BLACK
+#define BACKGROUND_COLOR ColorFromHSV(0, 0.00f, 0.10f)
+#define OPEN_CELL_COLOR  ColorFromHSV(120, 0.50f, 0.35f)
+#define CELL_COLOR       ColorFromHSV(0, 0.00f, 0.25f)
+#define TEXT_COLOR       ColorFromHSV(0, 0.00f, 0.90f)
 
 typedef enum {
     STATE_NONE,
@@ -201,7 +202,7 @@ void draw_pairs_screen(void)
                 int text_size = MeasureText(text, font_size);
                 int tx = (x + CELL_SIZE/2) - text_size/2;
                 int ty = (y + CELL_SIZE/2) - font_size/2;
-                DrawText(text, tx, ty, font_size, RED);
+                DrawText(text, tx, ty, font_size, TEXT_COLOR);
             }
 
             if (state == STATE_USER_TURN) {
