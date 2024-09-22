@@ -112,21 +112,21 @@ void cell_event_handler(Cell *cell, bool is_cell_hovered)
     if (is_cell_hovered && IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
         if (cell->open) {
             return;
-        } else if (picked_cells.first != NULL && picked_cells.first != cell) {
-            if (cell->value == picked_cells.first->value) {
+        } else if (picked_cells.first == NULL) {
+            picked_cells.first = cell;
+            picked_cells.first->open = true;
+        } else if (picked_cells.first != cell) {
+             if (cell->value == picked_cells.first->value) {
                 cell->open = true;
                 picked_cells.first->open = true;
                 picked_cells.first = NULL;
             } else {
                 picked_cells.second = cell;
-                picked_cells.second->open = true;
+                picked_cells.first->open = true;
                 picked_cells.second->open = true;
                 state = STATE_SHOW_PAIR; 
             }
-        } else {
-            picked_cells.first = cell;
-            picked_cells.first->open = true;
-        } 
+        }
     }
 }
 
