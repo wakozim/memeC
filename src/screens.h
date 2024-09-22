@@ -2,7 +2,11 @@
 #define SCREENS_H
 
 
-typedef enum GameScreen { MENU, PAIRS, SEQUENCE } GameScreen;
+typedef enum GameScreen { 
+    MENU, 
+    PAIRS, 
+    SEQUENCE 
+} GameScreen;
 
 //--------------------------
 // Menu 
