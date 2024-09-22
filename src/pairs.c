@@ -5,8 +5,6 @@
 #include <assert.h>
 #include <string.h>
 
-//#define SCREEN_WIDTH 1000
-//#define SCREEN_HEIGHT 600
 #define CELL_SIZE 100
 #define CELL_GAP 5
 
@@ -17,10 +15,18 @@
 #define CELL_COLOR GRAY
 #define OPEN_CELL_COLOR BLACK
 
+typedef enum { 
+    STATE_NONE,
+    STATE_SHOW_FIELD,
+    STATE_SHOW_PAIR,
+    STATE_USER_TURN,
+    STATE_USER_WIN,
+} GameState;
 
-static float ellapsed_time = 0.0f;
-static bool show_pair = false;
-static bool show_field = true;
+
+static float elapsed_time = 0.0f;
+static float ttime = 0.0f;
+static GameState state = STATE_NONE;
 
 typedef struct {
     bool open;
@@ -29,7 +35,6 @@ typedef struct {
 
 static Cell field[LINES][COLUMNS] = {0};
 static Cell *picked_cells[2]      = {NULL};
-
 
 int random_number(int min, int max)
 {
@@ -110,7 +115,7 @@ void cell_event_handler(Cell *cell, bool is_cell_hovered)
                 picked_cells[1] = cell;
                 picked_cells[0]->open = true;
                 picked_cells[1]->open = true;
-                show_pair = true;
+                state = STATE_SHOW_PAIR; 
             }
         } else {
             picked_cells[0] = cell;
@@ -126,9 +131,9 @@ void init_pairs_game(void)
             
     srand(time(NULL));
 
-    ellapsed_time = 0.0f;
-    show_pair = false;
-    show_field = true;
+    elapsed_time = 0.0f;
+    ttime = 0.0f; 
+    state = STATE_SHOW_FIELD;
     
     picked_cells[0] = NULL;
     picked_cells[1] = NULL;
@@ -143,28 +148,28 @@ void draw_pairs_screen(void)
         if (IsKeyPressed(KEY_R)) {
             picked_cells[0] = NULL;
             picked_cells[1] = NULL;
-            show_field = true;
-            ellapsed_time = 0.0f;
+            state = STATE_SHOW_FIELD;
+            ttime = 0.0f;
             init_field();
             field_change_open_value(true);
         }
 
-        if (show_field) {
-            ellapsed_time += GetFrameTime();
-            if (ellapsed_time > 3.0f) {
-                show_field = false;
+        if (state == STATE_SHOW_FIELD) {
+            ttime += GetFrameTime();
+            if (ttime > 3.0f) {
+                state = STATE_USER_TURN;
                 field_change_open_value(false);
-                ellapsed_time = 0.0f;
+                ttime = 0.0f;
             }
-        } else if (show_pair) {
-            ellapsed_time += GetFrameTime();
-            if (ellapsed_time > 0.5f) {
-                show_pair = false;
+        } else if (state == STATE_SHOW_PAIR) {
+            ttime += GetFrameTime();
+            if (ttime > 0.5f) {
+                state = STATE_USER_TURN;
                 picked_cells[0]->open = false;
                 picked_cells[1]->open = false;
                 picked_cells[0] = NULL;
                 picked_cells[1] = NULL;
-                ellapsed_time = 0.0f;
+                ttime = 0.0f;
             }
         }
         
@@ -193,11 +198,12 @@ void draw_pairs_screen(void)
                         DrawText(text, tx, ty, font_size, RED);
                     }
                     
-                    if (!show_field && !show_pair) {
+                    if (state == STATE_USER_TURN) {
                         cell_event_handler(cell, is_cell_hovered);
                     } 
                 }
             } 
+    elapsed_time += GetFrameTime();
 }
 
 // TODO: Show time elapsed time at the end
