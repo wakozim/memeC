@@ -49,8 +49,6 @@ static void update_draw_frame(void)
     //----------------------------------------------------------------------------------
     BeginDrawing();
 
-        ClearBackground(RAYWHITE);
-
         switch(current_screen)
         {
             case MENU: { 
