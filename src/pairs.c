@@ -192,10 +192,18 @@ void draw_pairs_screen(void)
             int y = sy + (line*CELL_SIZE) + (line*CELL_GAP);
             Rectangle cell_rect = {x, y, CELL_SIZE, CELL_SIZE};
             bool is_cell_hovered = CheckCollisionPointRec(GetMousePosition(), cell_rect);
+            if (!cell->open && is_cell_hovered && IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+                int cell_size = CELL_SIZE - 10;
+                x = x + CELL_SIZE/2 - cell_size/2;
+                y = y + CELL_SIZE/2 - cell_size/2;
+                cell_rect = (Rectangle){x, y, cell_size, cell_size};
+            }
+
             Color color = CELL_COLOR;
             if (cell->open) color = OPEN_CELL_COLOR;
-            else if (is_cell_hovered) color = ColorBrightness(CELL_COLOR, 0.25f); 
-            DrawRectangle(x, y, CELL_SIZE, CELL_SIZE, color);
+            else if (is_cell_hovered) color = ColorBrightness(CELL_COLOR, 0.25f);
+
+            DrawRectangleRec(cell_rect, color);
 
             if (cell->open) {
                 int font_size = 50;
