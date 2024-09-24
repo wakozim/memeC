@@ -87,8 +87,7 @@ void init_sequence_game(void)
 {
     srand(time(NULL));
     init_game();
-    //state = SHOW_SEQUENCE;
-    state = USER_WIN;
+    state = SHOW_SEQUENCE;
     ttime = 0.0f;
     index = 0;
 }
