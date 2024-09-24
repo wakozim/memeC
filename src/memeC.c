@@ -7,7 +7,7 @@ GameScreen current_screen = MENU;
 static void update_draw_frame(void);
 
 
-int main(void) 
+int main(void)
 {
     SetTraceLogLevel(LOG_WARNING);
     InitWindow(800, 600, "memeC");
@@ -20,7 +20,7 @@ int main(void)
     CloseWindow();
 }
 
-static void change_to_screen(int screen) 
+static void change_to_screen(int screen)
 {
     switch (current_screen) {
         case MENU: break;
@@ -51,8 +51,8 @@ static void update_draw_frame(void)
 
         switch(current_screen)
         {
-            case MENU: { 
-                    GameScreen screen = draw_menu_screen(); 
+            case MENU: {
+                    GameScreen screen = draw_menu_screen();
                     if (screen != MENU) {
                         change_to_screen(screen);
                     }

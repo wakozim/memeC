@@ -2,18 +2,18 @@
 #define SCREENS_H
 
 
-typedef enum GameScreen { 
-    MENU, 
-    PAIRS, 
-    SEQUENCE 
+typedef enum GameScreen {
+    MENU,
+    PAIRS,
+    SEQUENCE
 } GameScreen;
 
 //--------------------------
-// Menu 
+// Menu
 // -------------------------
 
 void init_menu_game(void);
-GameScreen draw_menu_screen(void); 
+GameScreen draw_menu_screen(void);
 
 
 //--------------------------
@@ -24,7 +24,7 @@ void init_sequence_game(void);
 void draw_sequence_screen(void);
 
 //--------------------------
-// Pairs 
+// Pairs
 // -------------------------
 
 int draw_pairs_screen(void);
