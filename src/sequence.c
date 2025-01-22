@@ -46,7 +46,7 @@ typedef enum {
 
 State state;
 
-static float ttime = 0.0f;
+static float game_time = 0.0f;
 static int index = 0;
 
 
@@ -87,7 +87,7 @@ void init_sequence_game(void)
     srand(time(NULL));
     init_game();
     state = SHOW_SEQUENCE;
-    ttime = 0.0f;
+    game_time = 0.0f;
     index = 0;
 }
 
@@ -121,7 +121,7 @@ void draw_field(void)
             Color color = CELL_DEFAULT_COLOR;
             switch (state) {
             case SHOW_SEQUENCE: {
-                if (ttime > 0.2f && sequence[index] == cell_index)
+                if (game_time > 0.2f && sequence[index] == cell_index)
                     color = CELL_SHOWCASE_COLOR;
             } break;
             case USER_GUESS:
@@ -143,10 +143,10 @@ void draw_field(void)
                         user_guess_lenght += 1;
                         if (user_guess_lenght >= sequence_lenght) {
                             state = USER_GUESS_CORRECT;
-                            ttime = 0.0f;
+                            game_time = 0.0f;
                         }
                     } else {
-                        ttime = 0.0f;
+                        game_time = 0.0f;
                         state = USER_GUESS_WRONG;
                     }
                 }
@@ -162,10 +162,10 @@ void draw_sequence_screen(void)
     if (IsKeyPressed(KEY_R)) {
         init_game();
         state = SHOW_SEQUENCE;
-        ttime = 0.0f;
+        game_time = 0.0f;
     }
 
-    if (ttime >= 1.0f) {
+    if (game_time >= 1.0f) {
         switch (state) {
         case SHOW_SEQUENCE: {
             index += 1;
@@ -173,13 +173,13 @@ void draw_sequence_screen(void)
                 index = 0;
                 state = USER_GUESS;
             }
-            ttime = 0.0f;
+            game_time = 0.0f;
         } break;
         case USER_GUESS_WRONG: {
             state = SHOW_SEQUENCE;
             user_guess_lenght = 0;
             user_guess_index = -1;
-            ttime = 0.0f;
+            game_time = 0.0f;
         } break;
         case USER_GUESS_CORRECT: {
             user_guess_lenght = 0;
@@ -188,13 +188,13 @@ void draw_sequence_screen(void)
                 state = USER_WIN;
             else
                 state = SHOW_SEQUENCE;
-            ttime = 0.0f;
+            game_time = 0.0f;
         } break;
         default:
             break;
         }
     } else {
-        ttime += GetFrameTime();
+        game_time += GetFrameTime();
     }
 
     draw_bar();
