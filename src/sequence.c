@@ -4,7 +4,7 @@
 
 #include "raylib.h"
 
-#define SEQUENCE_CAP 5
+#define SEQUENCE_CAP 3
 #define BOARD_LINES 3
 #define BOARD_COLUMNS 3
 #define BOARD_CAP (BOARD_LINES * BOARD_COLUMNS)
@@ -27,13 +27,6 @@
 #define BACKGROUND_COLOR          ColorFromHSV(0, 0.00f, 0.10f)
 
 
-static int sequence[SEQUENCE_CAP] = {1, 1, 1};
-static int sequence_lenght = 3;
-
-static int user_guess_lenght = 0;
-static int user_guess_index = -1;
-
-
 typedef enum {
     NONE = 0,
     SHOW_SEQUENCE,
@@ -44,51 +37,63 @@ typedef enum {
     USER_LOSE
 } State;
 
-State state;
+typedef struct Game {
+    State state;
+    float time;
+    int index;
+    int sequence[SEQUENCE_CAP];
+    int sequence_lenght;
+    int user_guess_lenght;
+    int user_guess_index;
+} Game;
 
-static float game_time = 0.0f;
-static int index = 0;
-
+Game game = {0};
 
 bool add_number_to_sequence(void)
 {
-    int old_lenght = sequence_lenght;
-    sequence_lenght += 1;
+    int old_lenght = game.sequence_lenght;
+    game.sequence_lenght += 1;
 
     if (old_lenght >= SEQUENCE_CAP)
         return true;
 
-    sequence[old_lenght] = rand() % BOARD_CAP;
+    game.sequence[old_lenght] = rand() % BOARD_CAP;
     return false;
 }
 
+void restart_game(void)
+{
+    game.state = SHOW_SEQUENCE;
+    game.time = 0.0f;
+    game.sequence_lenght = 0;
+    game.user_guess_lenght = 0;
+    game.user_guess_index = -1;
+
+    for (int i = 0; i < SEQUENCE_CAP; i++)
+        game.sequence[i] = -1;
+
+    add_number_to_sequence();
+}
 
 void init_game(void)
 {
-    sequence_lenght = 0;
-    user_guess_lenght = 0;
-    user_guess_index = -1;
-
-    for (int i = 0; i < SEQUENCE_CAP; i++)
-        sequence[i] = -1;
-
-    add_number_to_sequence();
+    restart_game();
 }
 
 
 void print_sequence(void)
 {
     for (int i = 0; i < SEQUENCE_CAP; i++)
-        printf("sequence[%d] = %d\n", i, sequence[i]);
+        printf("sequence[%d] = %d\n", i, game.sequence[i]);
 }
 
 void init_sequence_game(void)
 {
     srand(time(NULL));
     init_game();
-    state = SHOW_SEQUENCE;
-    game_time = 0.0f;
-    index = 0;
+    game.state = SHOW_SEQUENCE;
+    game.time = 0.0f;
+    game.index = 0;
 }
 
 void draw_bar(void)
@@ -99,7 +104,7 @@ void draw_bar(void)
     bar_cy += BAR_CIRCLE_RADIUS;
     for (int i = 0; i < SEQUENCE_CAP; i++) {
         int x_gap = BAR_CIRCLE_GAP * i;
-        Color color = sequence_lenght > i + 1 ? BAR_CIRCLE_ACTIVE_COLOR : BAR_CIRCLE_INACTIVE_COLOR;
+        Color color = game.sequence_lenght > i + 1 ? BAR_CIRCLE_ACTIVE_COLOR : BAR_CIRCLE_INACTIVE_COLOR;
         DrawCircle(bar_cx + i * (BAR_CIRCLE_RADIUS*2) + x_gap, bar_cy, BAR_CIRCLE_RADIUS, color);
     }
 }
@@ -119,15 +124,15 @@ void draw_field(void)
             bool is_hovered = CheckCollisionPointRec(GetMousePosition(), cell_rect);
 
             Color color = CELL_DEFAULT_COLOR;
-            switch (state) {
+            switch (game.state) {
             case SHOW_SEQUENCE: {
-                if (game_time > 0.2f && sequence[index] == cell_index)
+                if (game.time > 0.2f && game.sequence[game.index] == cell_index)
                     color = CELL_SHOWCASE_COLOR;
             } break;
             case USER_GUESS:
             case USER_GUESS_WRONG:
             case USER_GUESS_CORRECT: {
-                if (user_guess_index == cell_index)
+                if (game.user_guess_index == cell_index)
                     color = CELL_USER_CHOICE_COLOR;
             } break;
             default:
@@ -136,18 +141,18 @@ void draw_field(void)
 
             DrawRectangleRec(cell_rect, color);
 
-            if (state == USER_GUESS) {
+            if (game.state == USER_GUESS) {
                 if (is_hovered && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                    user_guess_index = cell_index;
-                    if (sequence[user_guess_lenght] == cell_index) {
-                        user_guess_lenght += 1;
-                        if (user_guess_lenght >= sequence_lenght) {
-                            state = USER_GUESS_CORRECT;
-                            game_time = 0.0f;
+                    game.user_guess_index = cell_index;
+                    if (game.sequence[game.user_guess_lenght] == cell_index) {
+                        game.user_guess_lenght += 1;
+                        if (game.user_guess_lenght >= game.sequence_lenght) {
+                            game.state = USER_GUESS_CORRECT;
+                            game.time = 0.0f;
                         }
                     } else {
-                        game_time = 0.0f;
-                        state = USER_GUESS_WRONG;
+                        game.time = 0.0f;
+                        game.state = USER_GUESS_WRONG;
                     }
                 }
             }
@@ -160,47 +165,45 @@ void draw_sequence_screen(void)
     ClearBackground(BACKGROUND_COLOR);
 
     if (IsKeyPressed(KEY_R)) {
-        init_game();
-        state = SHOW_SEQUENCE;
-        game_time = 0.0f;
+        restart_game();
     }
 
-    if (game_time >= 1.0f) {
-        switch (state) {
+    if (game.time >= 1.0f) {
+        switch (game.state) {
         case SHOW_SEQUENCE: {
-            index += 1;
-            if (index >= sequence_lenght) {
-                index = 0;
-                state = USER_GUESS;
+            game.index += 1;
+            if (game.index >= game.sequence_lenght) {
+                game.index = 0;
+                game.state = USER_GUESS;
             }
-            game_time = 0.0f;
+            game.time = 0.0f;
         } break;
         case USER_GUESS_WRONG: {
-            state = SHOW_SEQUENCE;
-            user_guess_lenght = 0;
-            user_guess_index = -1;
-            game_time = 0.0f;
+            game.state = SHOW_SEQUENCE;
+            game.user_guess_lenght = 0;
+            game.user_guess_index = -1;
+            game.time = 0.0f;
         } break;
         case USER_GUESS_CORRECT: {
-            user_guess_lenght = 0;
-            user_guess_index = -1;
+            game.user_guess_lenght = 0;
+            game.user_guess_index = -1;
             if (add_number_to_sequence())
-                state = USER_WIN;
+                game.state = USER_WIN;
             else
-                state = SHOW_SEQUENCE;
-            game_time = 0.0f;
+                game.state = SHOW_SEQUENCE;
+            game.time = 0.0f;
         } break;
         default:
             break;
         }
     } else {
-        game_time += GetFrameTime();
+        game.time += GetFrameTime();
     }
 
     draw_bar();
     draw_field();
 
-    if (state == USER_WIN) {
+    if (game.state == USER_WIN) {
         int height = 200;
         int width = 400;
         int x = GetScreenWidth() / 2 - width / 2;
