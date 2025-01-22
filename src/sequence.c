@@ -42,9 +42,9 @@ typedef enum {
     USER_GUESS_CORRECT,
     USER_WIN,
     USER_LOSE
-} GameState;
+} State;
 
-GameState state;
+State state;
 
 static float ttime = 0.0f;
 static int index = 0;
