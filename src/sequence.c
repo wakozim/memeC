@@ -92,6 +92,19 @@ void init_sequence_game(void)
     index = 0;
 }
 
+void draw_bar(void)
+{
+    int bar_cx = GetScreenWidth() / 2 - (BAR_WIDTH / 2);
+    int bar_cy = GetScreenHeight() / 2 - (BAR_HEIGHT + BOARD_HEIGHT / 2);
+    bar_cx += BAR_CIRCLE_RADIUS;
+    bar_cy += BAR_CIRCLE_RADIUS;
+    for (int i = 0; i < SEQUENCE_CAP; i++) {
+        int x_gap = BAR_CIRCLE_GAP * i;
+        Color color = sequence_lenght > i + 1 ? BAR_CIRCLE_ACTIVE_COLOR : BAR_CIRCLE_INACTIVE_COLOR;
+        DrawCircle(bar_cx + i * (BAR_CIRCLE_RADIUS*2) + x_gap, bar_cy, BAR_CIRCLE_RADIUS, color);
+    }
+}
+
 void draw_sequence_screen(void)
 {
             ClearBackground(BACKGROUND_COLOR);
@@ -101,18 +114,6 @@ void draw_sequence_screen(void)
                 state = SHOW_SEQUENCE;
                 ttime = 0.0f;
             }
-#if 0
-            int ty = 0;
-            DrawText(TextFormat("State = %d", state), 0, ty, 30, RED);
-            ty += 30;
-            DrawText(TextFormat("sequence_lenght = %d", sequence_lenght), 0, ty, 30, RED);
-            ty += 30;
-            DrawText(TextFormat("user_guess_index = %d", user_guess_index), 0, ty, 30, RED);
-            ty += 30;
-            DrawText(TextFormat("index = %d", index), 0, ty, 30, RED);
-            ty += 30;
-            DrawText(TextFormat("time = %f", time), 0, ty, 30, RED);
-#endif //DEBUG
 
             if (ttime >= 1.0f) {
                 switch (state) {
@@ -146,15 +147,7 @@ void draw_sequence_screen(void)
                 ttime += GetFrameTime();
             }
 
-            int bar_cx = GetScreenWidth() / 2 - (BAR_WIDTH / 2);
-            int bar_cy = GetScreenHeight() / 2 - (BAR_HEIGHT + BOARD_HEIGHT / 2);
-            bar_cx += BAR_CIRCLE_RADIUS;
-            bar_cy += BAR_CIRCLE_RADIUS;
-            for (int i = 0; i < SEQUENCE_CAP; i++) {
-                int x_gap = BAR_CIRCLE_GAP * i;
-                Color color = sequence_lenght > i + 1 ? BAR_CIRCLE_ACTIVE_COLOR : BAR_CIRCLE_INACTIVE_COLOR;
-                DrawCircle(bar_cx + i * (BAR_CIRCLE_RADIUS*2) + x_gap, bar_cy, BAR_CIRCLE_RADIUS, color);
-            }
+            draw_bar();
 
             int board_cx = (GetScreenWidth() / 2) - (BOARD_WIDTH / 2);
             int board_cy = (GetScreenHeight() / 2) - (BAR_HEIGHT + BOARD_HEIGHT / 2);
