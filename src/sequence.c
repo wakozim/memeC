@@ -4,7 +4,6 @@
 
 #include "raylib.h"
 
-
 #define SEQUENCE_CAP 5
 #define BOARD_LINES 3
 #define BOARD_COLUMNS 3
@@ -105,50 +104,9 @@ void draw_bar(void)
     }
 }
 
-void draw_sequence_screen(void)
+
+void draw_field(void)
 {
-    ClearBackground(BACKGROUND_COLOR);
-
-    if (IsKeyPressed(KEY_R)) {
-        init_game();
-        state = SHOW_SEQUENCE;
-        ttime = 0.0f;
-    }
-
-    if (ttime >= 1.0f) {
-        switch (state) {
-        case SHOW_SEQUENCE: {
-            index += 1;
-            if (index >= sequence_lenght) {
-                index = 0;
-                state = USER_GUESS;
-            }
-            ttime = 0.0f;
-        } break;
-        case USER_GUESS_WRONG: {
-            state = SHOW_SEQUENCE;
-            user_guess_lenght = 0;
-            user_guess_index = -1;
-            ttime = 0.0f;
-        } break;
-        case USER_GUESS_CORRECT: {
-            user_guess_lenght = 0;
-            user_guess_index = -1;
-            if (add_number_to_sequence())
-                state = USER_WIN;
-            else
-                state = SHOW_SEQUENCE;
-            ttime = 0.0f;
-        } break;
-        default:
-            break;
-        }
-    } else {
-        ttime += GetFrameTime();
-    }
-
-    draw_bar();
-
     int board_cx = (GetScreenWidth() / 2) - (BOARD_WIDTH / 2);
     int board_cy = (GetScreenHeight() / 2) - (BAR_HEIGHT + BOARD_HEIGHT / 2);
     board_cy += BAR_HEIGHT;
@@ -195,6 +153,52 @@ void draw_sequence_screen(void)
             }
         }
     }
+}
+
+void draw_sequence_screen(void)
+{
+    ClearBackground(BACKGROUND_COLOR);
+
+    if (IsKeyPressed(KEY_R)) {
+        init_game();
+        state = SHOW_SEQUENCE;
+        ttime = 0.0f;
+    }
+
+    if (ttime >= 1.0f) {
+        switch (state) {
+        case SHOW_SEQUENCE: {
+            index += 1;
+            if (index >= sequence_lenght) {
+                index = 0;
+                state = USER_GUESS;
+            }
+            ttime = 0.0f;
+        } break;
+        case USER_GUESS_WRONG: {
+            state = SHOW_SEQUENCE;
+            user_guess_lenght = 0;
+            user_guess_index = -1;
+            ttime = 0.0f;
+        } break;
+        case USER_GUESS_CORRECT: {
+            user_guess_lenght = 0;
+            user_guess_index = -1;
+            if (add_number_to_sequence())
+                state = USER_WIN;
+            else
+                state = SHOW_SEQUENCE;
+            ttime = 0.0f;
+        } break;
+        default:
+            break;
+        }
+    } else {
+        ttime += GetFrameTime();
+    }
+
+    draw_bar();
+    draw_field();
 
     if (state == USER_WIN) {
         int height = 200;
