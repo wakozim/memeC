@@ -30,7 +30,6 @@
 #define CELL_DEFAULT_COLOR        ColorFromHSV(0, 0.00f, 0.30f)
 #define CELL_SHOWCASE_COLOR       ColorFromHSV(0, 0.55f, 0.85f)
 #define CELL_HOVERED_COLOR        ColorFromHSV(0, 0.00f, 0.40f)
-#define CELL_PRESSED_COLOR        ColorFromHSV(0, 0.00f, 0.50f)
 #define BAR_CIRCLE_ACTIVE_COLOR   ColorFromHSV(0, 0.00f, 0.80f)
 #define BAR_CIRCLE_INACTIVE_COLOR ColorFromHSV(0, 0.00f, 0.30f)
 #define BACKGROUND_COLOR          ColorFromHSV(0, 0.00f, 0.10f)
@@ -250,9 +249,6 @@ static void draw_board(void)
 
                 offset = Lerp(0.0f, -1.0f, 2*PI*sinf(t));
                 color = is_hovered ? CELL_HOVERED_COLOR : color;
-
-                if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT) || game.pressed_cell != i) break;
-                color = IsMouseButtonDown(MOUSE_BUTTON_LEFT) ? CELL_PRESSED_COLOR : color;
             } break;
             case STATE_USER_GUESS_CORRECT: {
                 float t = 1.0f - game.time / MAX_USER_GUESSED_TIME;
