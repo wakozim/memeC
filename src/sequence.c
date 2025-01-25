@@ -6,6 +6,9 @@
 #include "raylib.h"
 #include "raymath.h"
 
+#include "screens.h"
+
+
 #define SEQUENCE_CAP 5
 #define BOARD_LINES 3
 #define BOARD_COLUMNS 3
@@ -272,14 +275,18 @@ static void draw_board(void)
     }
 }
 
-void draw_sequence_screen(void)
+GameScreen draw_sequence_screen(void)
 {
+    GameScreen result = SEQUENCE;
+
     ClearBackground(BACKGROUND_COLOR);
 
     if (game.time >= 0.0f) game.time -= GetFrameTime();
 
     if (IsKeyPressed(KEY_R)) {
         restart_game();
+    } else if (IsKeyPressed(KEY_Q)) {
+        result = MENU;
     }
 
     switch (game.state) {
@@ -360,6 +367,7 @@ void draw_sequence_screen(void)
         int restart_text_y = win_text_y + 10 + win_text_size;
         DrawText(restart_text, restart_text_x, restart_text_y, restart_text_size, GREEN);
     }
+    return result;
 }
 
 

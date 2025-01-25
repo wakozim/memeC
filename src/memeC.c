@@ -49,17 +49,24 @@ static void update_draw_frame(void)
     //----------------------------------------------------------------------------------
     BeginDrawing();
 
+        GameScreen screen;
+
         switch(current_screen)
         {
             case MENU: {
-                    GameScreen screen = draw_menu_screen();
-                    if (screen != MENU) {
-                        change_to_screen(screen);
-                    }
+                screen = draw_menu_screen();
             } break;
-            case SEQUENCE: draw_sequence_screen(); break;
-            case PAIRS: draw_pairs_screen(); break;
+            case SEQUENCE: {
+                screen = draw_sequence_screen();
+            } break;
+            case PAIRS: {
+                screen = draw_pairs_screen();
+            } break;
             default: break;
+        }
+
+        if (screen != current_screen) {
+            change_to_screen(screen);
         }
 
     EndDrawing();

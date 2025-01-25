@@ -1,9 +1,13 @@
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include "raylib.h"
 #include <assert.h>
 #include <string.h>
+
+#include "raylib.h"
+#include "raymath.h"
+
+#include "screens.h"
 
 #define CELL_SIZE 100
 #define CELL_GAP 5
@@ -150,8 +154,10 @@ void init_pairs_game(void)
     //size_t lifes = 3;
 }
 
-void draw_pairs_screen(void)
+GameScreen draw_pairs_screen(void)
 {
+    GameScreen result = PAIRS;
+
     if (IsKeyPressed(KEY_R)) {
         picked_cells.first  = NULL;
         picked_cells.second = NULL;
@@ -159,6 +165,8 @@ void draw_pairs_screen(void)
         ttime = 0.0f;
         init_field();
         field_change_open_value(true);
+    } else if (IsKeyPressed(KEY_Q)) {
+        result = MENU;
     }
 
     if (state == STATE_SHOW_FIELD) {
@@ -220,6 +228,8 @@ void draw_pairs_screen(void)
         }
     }
     elapsed_time += GetFrameTime();
+
+    return result;
 }
 
 // TODO: Show time elapsed time at the end

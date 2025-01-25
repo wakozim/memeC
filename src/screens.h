@@ -21,13 +21,13 @@ GameScreen draw_menu_screen(void);
 // -------------------------
 
 void init_sequence_game(void);
-void draw_sequence_screen(void);
+GameScreen draw_sequence_screen(void);
 
 //--------------------------
 // Pairs
 // -------------------------
 
-int draw_pairs_screen(void);
 void init_pairs_game(void);
+GameScreen draw_pairs_screen(void);
 
 #endif // SCREENS_H
