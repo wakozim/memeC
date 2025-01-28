@@ -28,16 +28,13 @@ typedef enum {
     STATE_USER_WIN,
 } State;
 
-
-static float elapsed_time = 0.0f;
-static float ttime = 0.0f;
-static State state = STATE_NONE;
-
 typedef struct {
     bool open;
     int value;
 } Cell;
 
+static float ttime = 0.0f;
+static State state = STATE_NONE;
 static Cell field[LINES][COLUMNS] = {0};
 
 typedef struct Pair {
@@ -120,7 +117,6 @@ void restart_pairs_game(void)
     picked_cells.second = NULL;
 
     ttime = 0.0f;
-    elapsed_time = 0.0f;
 
     state = STATE_SHOW_FIELD;
 
@@ -227,9 +223,6 @@ GameScreen draw_pairs_screen(void)
             }
         }
     }
-    elapsed_time += GetFrameTime();
 
     return result;
 }
-
-// TODO: Show time elapsed time at the end
