@@ -155,36 +155,8 @@ void cell_event_handler(Cell *cell, bool is_cell_hovered)
 }
 
 
-GameScreen draw_pairs_screen(void)
+void draw_pairs_field(void)
 {
-    GameScreen result = PAIRS;
-
-    if (IsKeyPressed(KEY_R)) {
-        restart_pairs_game();
-    } else if (IsKeyPressed(KEY_Q)) {
-        result = MENU;
-    }
-
-    if (state == STATE_SHOW_FIELD) {
-        ttime += GetFrameTime();
-        if (ttime > 3.0f) {
-            state = STATE_USER_TURN;
-            field_change_open_value(false);
-            ttime = 0.0f;
-        }
-    } else if (state == STATE_SHOW_PAIR) {
-        ttime += GetFrameTime();
-        if (ttime > 0.5f) {
-            state = STATE_USER_TURN;
-            picked_cells.first->open = false;
-            picked_cells.second->open = false;
-            picked_cells.first = NULL;
-            picked_cells.second = NULL;
-            ttime = 0.0f;
-        }
-    }
-
-    ClearBackground(BACKGROUND_COLOR);
     int sx = GetScreenWidth()/2 - (COLUMNS*CELL_SIZE + (COLUMNS-1)*CELL_GAP)/2;
     int sy = GetScreenHeight()/2 - (LINES*CELL_SIZE + (LINES-1)*CELL_GAP)/2;
 
@@ -221,6 +193,41 @@ GameScreen draw_pairs_screen(void)
             if (state == STATE_USER_TURN) {
                 cell_event_handler(cell, is_cell_hovered);
             }
+        }
+    }
+}
+
+
+GameScreen draw_pairs_screen(void)
+{
+    GameScreen result = PAIRS;
+
+    ClearBackground(BACKGROUND_COLOR);
+
+    draw_pairs_field();
+
+    if (IsKeyPressed(KEY_R)) {
+        restart_pairs_game();
+    } else if (IsKeyPressed(KEY_Q)) {
+        result = MENU;
+    }
+
+    if (state == STATE_SHOW_FIELD) {
+        ttime += GetFrameTime();
+        if (ttime > 3.0f) {
+            state = STATE_USER_TURN;
+            field_change_open_value(false);
+            ttime = 0.0f;
+        }
+    } else if (state == STATE_SHOW_PAIR) {
+        ttime += GetFrameTime();
+        if (ttime > 0.5f) {
+            state = STATE_USER_TURN;
+            picked_cells.first->open = false;
+            picked_cells.second->open = false;
+            picked_cells.first = NULL;
+            picked_cells.second = NULL;
+            ttime = 0.0f;
         }
     }
 
