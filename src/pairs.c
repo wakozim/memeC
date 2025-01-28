@@ -26,12 +26,12 @@ typedef enum {
     STATE_SHOW_PAIR,
     STATE_USER_TURN,
     STATE_USER_WIN,
-} GameState;
+} State;
 
 
 static float elapsed_time = 0.0f;
 static float ttime = 0.0f;
-static GameState state = STATE_NONE;
+static State state = STATE_NONE;
 
 typedef struct {
     bool open;
