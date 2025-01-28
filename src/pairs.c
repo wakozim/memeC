@@ -49,7 +49,7 @@ static Pair picked_cells = {0};
 
 int random_number(int min, int max)
 {
-    return (rand() % (max - min)) + min;
+    return min + (rand() % (max - min));
 }
 
 int get_rand_cell(void)
@@ -85,6 +85,15 @@ void clear_field(void)
     }
 }
 
+void field_change_open_value(bool new_open_value)
+{
+    for (int line = 0; line < LINES; line++) {
+        for (int column = 0; column < COLUMNS; column++) {
+            field[line][column].open = new_open_value;
+        }
+    }
+}
+
 void init_field(void)
 {
     clear_field();
@@ -102,13 +111,27 @@ void init_field(void)
     }
 }
 
-void field_change_open_value(bool new_open_value)
+
+void restart_pairs_game(void)
 {
-    for (int line = 0; line < LINES; line++) {
-        for (int column = 0; column < COLUMNS; column++) {
-            field[line][column].open = new_open_value;
-        }
-    }
+    assert(LINES*COLUMNS % 2 == 0 && "Must be even");
+
+    picked_cells.first  = NULL;
+    picked_cells.second = NULL;
+
+    ttime = 0.0f;
+    elapsed_time = 0.0f;
+
+    state = STATE_SHOW_FIELD;
+
+    init_field();
+    field_change_open_value(true);
+}
+
+
+void init_pairs_game(void)
+{
+    restart_pairs_game();
 }
 
 
@@ -136,35 +159,12 @@ void cell_event_handler(Cell *cell, bool is_cell_hovered)
 }
 
 
-void init_pairs_game(void)
-{
-    assert(LINES*COLUMNS % 2 == 0 && "Must be even");
-
-    srand(time(NULL));
-
-    elapsed_time = 0.0f;
-    ttime = 0.0f;
-    state = STATE_SHOW_FIELD;
-
-    picked_cells.first  = NULL;
-    picked_cells.second = NULL;
-
-    init_field();
-    field_change_open_value(true);
-    //size_t lifes = 3;
-}
-
 GameScreen draw_pairs_screen(void)
 {
     GameScreen result = PAIRS;
 
     if (IsKeyPressed(KEY_R)) {
-        picked_cells.first  = NULL;
-        picked_cells.second = NULL;
-        state = STATE_SHOW_FIELD;
-        ttime = 0.0f;
-        init_field();
-        field_change_open_value(true);
+        restart_pairs_game();
     } else if (IsKeyPressed(KEY_Q)) {
         result = MENU;
     }
