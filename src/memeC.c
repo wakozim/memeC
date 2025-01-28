@@ -10,8 +10,9 @@ static void update_draw_frame(void);
 int main(void)
 {
     SetTraceLogLevel(LOG_WARNING);
-    InitWindow(800, 600, "memeC");
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
+    InitWindow(800, 600, "memeC");
 
     while (!WindowShouldClose()) {
         update_draw_frame();
