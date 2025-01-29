@@ -10,7 +10,7 @@
 #include "screens.h"
 
 #define CELL_SIZE 100
-#define CELL_GAP 5
+#define CELL_GAP 7
 
 #define LINES 4
 #define COLUMNS 5
@@ -33,16 +33,21 @@ typedef struct {
     int value;
 } Cell;
 
-static float ttime = 0.0f;
-static State state = STATE_NONE;
-static Cell field[LINES][COLUMNS] = {0};
-
 typedef struct Pair {
     Cell *first;
     Cell *second;
 } Pair;
 
-static Pair picked_cells = {0};
+typedef struct Game {
+    float time;                 // Time for animations and interpolations
+    State state;                // Game state
+    Cell field[LINES][COLUMNS]; // Field state
+    Pair picked_cells;          // Picked cells
+} Game;
+
+
+static Game game = {0};
+
 
 int random_number(int min, int max)
 {
@@ -56,7 +61,7 @@ int get_rand_cell(void)
 
     do {
         cell_index = random_number(0, LINES*COLUMNS);
-        cell = &field[cell_index / COLUMNS][cell_index % COLUMNS];
+        cell = &game.field[cell_index / COLUMNS][cell_index % COLUMNS];
     } while (cell->value != 0);
 
     return cell_index;
@@ -76,8 +81,8 @@ void clear_field(void)
 {
     for (int y = 0; y < LINES; y++) {
         for (int x = 0; x < COLUMNS; x++) {
-            field[y][x].value = 0;
-            field[y][x].open  = false;
+            game.field[y][x].value = 0;
+            game.field[y][x].open  = false;
         }
     }
 }
@@ -86,7 +91,7 @@ void field_change_open_value(bool new_open_value)
 {
     for (int line = 0; line < LINES; line++) {
         for (int column = 0; column < COLUMNS; column++) {
-            field[line][column].open = new_open_value;
+            game.field[line][column].open = new_open_value;
         }
     }
 }
@@ -102,8 +107,8 @@ void init_field(void)
         while (values[value]) {
             value = random_number(0, (LINES*COLUMNS)/2);
         }
-        field[first_cell / COLUMNS][first_cell % COLUMNS].value = value + 1;
-        field[second_cell / COLUMNS][second_cell % COLUMNS].value = value + 1;
+        game.field[first_cell / COLUMNS][first_cell % COLUMNS].value = value + 1;
+        game.field[second_cell / COLUMNS][second_cell % COLUMNS].value = value + 1;
         values[value] = true;
     }
 }
@@ -113,12 +118,12 @@ void restart_pairs_game(void)
 {
     assert(LINES*COLUMNS % 2 == 0 && "Must be even");
 
-    picked_cells.first  = NULL;
-    picked_cells.second = NULL;
+    game.picked_cells.first  = NULL;
+    game.picked_cells.second = NULL;
 
-    ttime = 0.0f;
+    game.time = 0.0f;
 
-    state = STATE_SHOW_FIELD;
+    game.state = STATE_SHOW_FIELD;
 
     init_field();
     field_change_open_value(true);
@@ -136,19 +141,19 @@ void cell_event_handler(Cell *cell, bool is_cell_hovered)
     if (is_cell_hovered && IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
         if (cell->open) {
             return;
-        } else if (picked_cells.first == NULL) {
-            picked_cells.first = cell;
-            picked_cells.first->open = true;
-        } else if (picked_cells.first != cell) {
-            if (cell->value == picked_cells.first->value) {
+        } else if (game.picked_cells.first == NULL) {
+            game.picked_cells.first = cell;
+            game.picked_cells.first->open = true;
+        } else if (game.picked_cells.first != cell) {
+            if (cell->value == game.picked_cells.first->value) {
                 cell->open = true;
-                picked_cells.first->open = true;
-                picked_cells.first = NULL;
+                game.picked_cells.first->open = true;
+                game.picked_cells.first = NULL;
             } else {
-                picked_cells.second = cell;
-                picked_cells.first->open = true;
-                picked_cells.second->open = true;
-                state = STATE_SHOW_PAIR;
+                game.picked_cells.second = cell;
+                game.picked_cells.first->open = true;
+                game.picked_cells.second->open = true;
+                game.state = STATE_SHOW_PAIR;
             }
         }
     }
@@ -162,7 +167,7 @@ void draw_pairs_field(void)
 
     for (int line = 0; line < LINES; line++) {
         for (int column = 0; column < COLUMNS; column++) {
-            Cell *cell = &field[line][column];
+            Cell *cell = &game.field[line][column];
 
             int x = sx + (column*CELL_SIZE) + (column*CELL_GAP);
             int y = sy + (line*CELL_SIZE) + (line*CELL_GAP);
@@ -179,7 +184,7 @@ void draw_pairs_field(void)
             if (cell->open) color = OPEN_CELL_COLOR;
             else if (is_cell_hovered) color = ColorBrightness(CELL_COLOR, 0.25f);
 
-            DrawRectangleRec(cell_rect, color);
+            DrawRectangleRounded(cell_rect, 0.1, 0, color);
 
             if (cell->open) {
                 int font_size = 50;
@@ -190,7 +195,7 @@ void draw_pairs_field(void)
                 DrawText(text, tx, ty, font_size, TEXT_COLOR);
             }
 
-            if (state == STATE_USER_TURN) {
+            if (game.state == STATE_USER_TURN) {
                 cell_event_handler(cell, is_cell_hovered);
             }
         }
@@ -212,22 +217,22 @@ GameScreen draw_pairs_screen(void)
         result = MENU;
     }
 
-    if (state == STATE_SHOW_FIELD) {
-        ttime += GetFrameTime();
-        if (ttime > 3.0f) {
-            state = STATE_USER_TURN;
+    if (game.state == STATE_SHOW_FIELD) {
+        game.time += GetFrameTime();
+        if (game.time > 3.0f) {
+            game.state = STATE_USER_TURN;
             field_change_open_value(false);
-            ttime = 0.0f;
+            game.time = 0.0f;
         }
-    } else if (state == STATE_SHOW_PAIR) {
-        ttime += GetFrameTime();
-        if (ttime > 0.5f) {
-            state = STATE_USER_TURN;
-            picked_cells.first->open = false;
-            picked_cells.second->open = false;
-            picked_cells.first = NULL;
-            picked_cells.second = NULL;
-            ttime = 0.0f;
+    } else if (game.state == STATE_SHOW_PAIR) {
+        game.time += GetFrameTime();
+        if (game.time > 0.5f) {
+            game.state = STATE_USER_TURN;
+            game.picked_cells.first->open = false;
+            game.picked_cells.second->open = false;
+            game.picked_cells.first = NULL;
+            game.picked_cells.second = NULL;
+            game.time = 0.0f;
         }
     }
 
