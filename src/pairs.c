@@ -20,6 +20,9 @@
 #define CELL_COLOR       ColorFromHSV(0, 0.00f, 0.25f)
 #define TEXT_COLOR       ColorFromHSV(0, 0.00f, 0.90f)
 
+#define MAX_SHOW_PAIRS_TIME 3.0f
+#define MAX_SHOW_PAIR_TIME  0.6f
+
 typedef enum {
     STATE_NONE,
     STATE_SHOW_FIELD,
@@ -31,6 +34,7 @@ typedef enum {
 typedef struct {
     bool open;
     int value;
+    float time;
 } Cell;
 
 typedef struct Pair {
@@ -82,6 +86,7 @@ void clear_field(void)
     for (int y = 0; y < LINES; y++) {
         for (int x = 0; x < COLUMNS; x++) {
             game.field[y][x].value = 0;
+            game.field[y][x].time = 0.0f;
             game.field[y][x].open  = false;
         }
     }
@@ -121,7 +126,7 @@ void restart_pairs_game(void)
     game.picked_cells.first  = NULL;
     game.picked_cells.second = NULL;
 
-    game.time = 0.0f;
+    game.time = MAX_SHOW_PAIRS_TIME;
 
     game.state = STATE_SHOW_FIELD;
 
@@ -154,6 +159,7 @@ void cell_event_handler(Cell *cell, bool is_cell_hovered)
                 game.picked_cells.first->open = true;
                 game.picked_cells.second->open = true;
                 game.state = STATE_SHOW_PAIR;
+                game.time = MAX_SHOW_PAIR_TIME;
             }
         }
     }
@@ -208,8 +214,9 @@ GameScreen draw_pairs_screen(void)
     GameScreen result = PAIRS;
 
     ClearBackground(BACKGROUND_COLOR);
-
     draw_pairs_field();
+
+    if (game.time >= 0.0f) game.time -= GetFrameTime();
 
     if (IsKeyPressed(KEY_R)) {
         restart_pairs_game();
@@ -217,23 +224,20 @@ GameScreen draw_pairs_screen(void)
         result = MENU;
     }
 
-    if (game.state == STATE_SHOW_FIELD) {
-        game.time += GetFrameTime();
-        if (game.time > 3.0f) {
+    switch (game.state) {
+        case STATE_SHOW_FIELD: {
+            if (game.time > 0.0f) break;
             game.state = STATE_USER_TURN;
             field_change_open_value(false);
-            game.time = 0.0f;
-        }
-    } else if (game.state == STATE_SHOW_PAIR) {
-        game.time += GetFrameTime();
-        if (game.time > 0.5f) {
+        } break;
+        case STATE_SHOW_PAIR: {
+            if (game.time > 0.0f) break;
             game.state = STATE_USER_TURN;
             game.picked_cells.first->open = false;
             game.picked_cells.second->open = false;
             game.picked_cells.first = NULL;
             game.picked_cells.second = NULL;
-            game.time = 0.0f;
-        }
+        } break;
     }
 
     return result;
