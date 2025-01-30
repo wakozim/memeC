@@ -3,6 +3,7 @@
 
 
 GameScreen current_screen = MENU;
+int mouse_cursor = MOUSE_CURSOR_DEFAULT;
 
 static void update_draw_frame(void);
 
@@ -19,6 +20,14 @@ int main(void)
     }
 
     CloseWindow();
+}
+
+void set_mouse_cursor(int cursor)
+{
+    if (cursor != mouse_cursor) {
+        SetMouseCursor(cursor);
+        mouse_cursor = cursor;
+    }
 }
 
 static void change_to_screen(int screen)

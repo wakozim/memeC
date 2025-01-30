@@ -72,6 +72,7 @@ typedef struct Game {
     int sequence_len;
     int user_guess_len;
     int pressed_cell;
+    int mouse_cursor;
 } Game;
 
 Game game = {0};
@@ -252,6 +253,9 @@ static void draw_board(void)
 
                 offset = Lerp(0.0f, -1.0f, 2*PI*sinf(t));
                 color = is_hovered ? CELL_HOVERED_COLOR : color;
+                if (is_hovered) {
+                    game.mouse_cursor = MOUSE_CURSOR_POINTING_HAND;
+                }
             } break;
             case STATE_USER_GUESS_CORRECT: {
                 float t = 1.0f - game.time / MAX_USER_GUESSED_TIME;
@@ -278,6 +282,7 @@ static void draw_board(void)
 GameScreen draw_sequence_screen(void)
 {
     GameScreen result = SEQUENCE;
+    game.mouse_cursor = MOUSE_CURSOR_DEFAULT;
 
     ClearBackground(BACKGROUND_COLOR);
 
@@ -367,6 +372,9 @@ GameScreen draw_sequence_screen(void)
         int restart_text_y = win_text_y + 10 + win_text_size;
         DrawText(restart_text, restart_text_x, restart_text_y, restart_text_size, GREEN);
     }
+
+    set_mouse_cursor(game.mouse_cursor);
+
     return result;
 }
 

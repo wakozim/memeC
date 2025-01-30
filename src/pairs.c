@@ -16,7 +16,7 @@
 #define COLUMNS 5
 
 #define BACKGROUND_COLOR ColorFromHSV(0, 0.00f, 0.10f)
-#define OPEN_CELL_COLOR  ColorFromHSV(120, 0.50f, 0.35f)
+#define OPEN_CELL_COLOR  ColorFromHSV(120, 0.50f, 0.4f)
 #define CELL_COLOR       ColorFromHSV(0, 0.00f, 0.25f)
 #define TEXT_COLOR       ColorFromHSV(0, 0.00f, 0.90f)
 

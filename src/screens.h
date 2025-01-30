@@ -8,6 +8,8 @@ typedef enum GameScreen {
     SEQUENCE
 } GameScreen;
 
+void set_mouse_cursor(int cursor);
+
 //--------------------------
 // Menu
 // -------------------------
