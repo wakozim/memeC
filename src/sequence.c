@@ -30,12 +30,13 @@
 #   define FILED_WIDTH    (BAR_WIDTH)
 #endif
 
-#define CELL_DEFAULT_COLOR        ColorFromHSV(0, 0.00f, 0.30f)
-#define CELL_SHOWCASE_COLOR       ColorFromHSV(0, 0.55f, 0.85f)
-#define CELL_HOVERED_COLOR        ColorFromHSV(0, 0.00f, 0.40f)
-#define BAR_CIRCLE_ACTIVE_COLOR   ColorFromHSV(0, 0.00f, 0.80f)
-#define BAR_CIRCLE_INACTIVE_COLOR ColorFromHSV(0, 0.00f, 0.30f)
-#define BACKGROUND_COLOR          ColorFromHSV(0, 0.00f, 0.10f)
+#define CELL_DEFAULT_COLOR            ColorFromHSV(0, 0.00f, 0.30f)
+#define CELL_SHOWCASE_COLOR           ColorFromHSV(0, 0.55f, 0.85f)
+#define CELL_HOVERED_COLOR            ColorFromHSV(0, 0.00f, 0.40f)
+#define CELL_USER_GUESS_CORRECT_COLOR ColorFromHSV(120, 0.55f, 0.85f)
+#define BAR_CIRCLE_ACTIVE_COLOR       ColorFromHSV(0, 0.00f, 0.80f)
+#define BAR_CIRCLE_INACTIVE_COLOR     ColorFromHSV(0, 0.00f, 0.30f)
+#define BACKGROUND_COLOR              ColorFromHSV(0, 0.00f, 0.10f)
 
 #define MAX_SHOW_SEQUENCE_TIME 1.0f
 #define MAX_CELL_PRESSING_TIME 0.25f
@@ -241,7 +242,7 @@ static void draw_board(void)
                     offset = Lerp(0.0f, -1.0f, 2*PI*sinf(1.0f - t));
                 }
                 if (game.pressed_cell != i) break;
-                color = CELL_SHOWCASE_COLOR;
+                color = CELL_USER_GUESS_CORRECT_COLOR;
             } break;
             case STATE_USER_GUESS: {
                 float t = 0.0f;
@@ -259,7 +260,7 @@ static void draw_board(void)
             } break;
             case STATE_USER_GUESS_CORRECT: {
                 float t = 1.0f - game.time / MAX_USER_GUESSED_TIME;
-                color = ColorLerp(color, CELL_SHOWCASE_COLOR, sinf(t*2*PI));
+                color = ColorLerp(color, CELL_USER_GUESS_CORRECT_COLOR, sinf(t*2*PI));
             } break;
             case STATE_USER_GUESS_WRONG: {
                 float t = 1.0f - game.time / MAX_USER_GUESSED_TIME;
