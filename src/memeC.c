@@ -1,11 +1,17 @@
 #include "raylib.h"
 #include "screens.h"
 
+#define PL_MPEG_IMPLEMENTATION
+#include "pl_mpeg.h"
 
-GameScreen current_screen = MENU;
-int mouse_cursor = MOUSE_CURSOR_DEFAULT;
+#define GUI_IMPLEMENTATION
+#include "gui.h"
+
+static GameScreen current_screen = MENU;
+static int mouse_cursor = MOUSE_CURSOR_DEFAULT;
 
 static void update_draw_frame(void);
+static void change_to_screen(int screen);
 
 
 int main(void)
@@ -14,6 +20,8 @@ int main(void)
     SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
     InitWindow(800, 600, "memeC");
+
+    change_to_screen(MENU);
 
     while (!WindowShouldClose()) {
         update_draw_frame();
@@ -44,19 +52,12 @@ static void change_to_screen(int screen)
         case SEQUENCE: init_sequence_game(); break;
     }
 
-
     current_screen = screen;
 }
 
 
 static void update_draw_frame(void)
 {
-    // Update
-    //----------------------------------------------------------------------------------
-    //----------------------------------------------------------------------------------
-
-    // Draw
-    //----------------------------------------------------------------------------------
     BeginDrawing();
 
         GameScreen screen;
@@ -80,6 +81,5 @@ static void update_draw_frame(void)
         }
 
     EndDrawing();
-    //----------------------------------------------------------------------------------
 }
 
