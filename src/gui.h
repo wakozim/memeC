@@ -72,7 +72,7 @@ Rectangle layout_slot_loc(Layout *l, const char *file_path, int line, int slots_
 
     switch (l->orient) {
         case GUI_LAYOUT_HORIZONTAL: {
-            int slot_width = (l->rect.width - l->gap*(l->count - 1))/l->count;
+            float slot_width = (l->rect.width - l->gap*(l->count - 1))/l->count;
             r.width = (slot_width)*slots_number + l->gap*(slots_number-1);
             r.height = l->rect.height;
             r.x = l->rect.x + l->i*(slot_width + l->gap);
@@ -80,7 +80,7 @@ Rectangle layout_slot_loc(Layout *l, const char *file_path, int line, int slots_
         } break;
 
         case GUI_LAYOUT_VERTICAL: {
-            int slot_height = (l->rect.height - l->gap*(l->count - 1))/l->count;
+            float slot_height = (l->rect.height - l->gap*(l->count - 1))/l->count;
             r.width = l->rect.width;
             r.height = (slot_height)*slots_number + l->gap*(slots_number-1);
             r.x = l->rect.x;
