@@ -1,16 +1,42 @@
 #include "raylib.h"
 #include "raymath.h"
-#include "pl_mpeg.h"
 
 #include "gui.h"
 #include "screens.h"
 
+// Assets
 #define FONT_FILE_PATH "assets/fonts/IosevkaNerdFontMono-Regular.ttf"
 
+// Colors
 #define BACKGROUND_COLOR ColorFromHSV(0, 0.00f, 0.10f)
 #define TEXT_COLOR       GREEN
 
+// Params
 #define MENU_TEXT_SIZE 60
+
+#ifdef PLATFORM_WEB
+
+#define SEQUENCE_VIDEO_FILE_PATH "assets/videos/sequence.mp4"
+#define PAIRS_VIDEO_FILE_PATH    "assets/videos/pairs.mp4"
+
+typedef struct Video {
+    size_t id;
+    size_t loaded;
+    size_t playing;
+} Video;
+
+bool load_video(Video *video, const char *file_path);
+void unload_video(Video *video);
+void update_video(Video *video);
+void draw_video(Video *video, Rectangle boundary, bool is_square);
+
+#else
+
+#define PL_MPEG_IMPLEMENTATION
+#include "pl_mpeg.h"
+
+#define SEQUENCE_VIDEO_FILE_PATH "assets/videos/sequence.mpeg"
+#define PAIRS_VIDEO_FILE_PATH    "assets/videos/pairs.mpeg"
 
 typedef struct Video {
     plm_t *plm;
@@ -24,14 +50,8 @@ typedef struct Video {
     int frame_counter;
     int delay;
     bool loaded;
+    bool playing;
 } Video;
-
-
-static Video pairs_video = {0};
-static Video sequence_video = {0};
-static int mouse_cursor = MOUSE_CURSOR_DEFAULT;
-static Font font = {0};
-
 
 bool load_video(Video *video, const char *file_path)
 {
@@ -42,6 +62,7 @@ bool load_video(Video *video, const char *file_path)
 		return false;
 	}
     video->loaded = true;
+    video->playing = true;
     plm_set_audio_enabled(video->plm, false);
     video->rect.x = 0;
     video->rect.y = 0;
@@ -76,7 +97,6 @@ void unload_video(Video *video)
     }
 }
 
-
 void update_video(Video *video)
 {
     if (!video->loaded) return;
@@ -95,23 +115,35 @@ void update_video(Video *video)
     }
 }
 
+void draw_video(Video *video, Rectangle boundary, bool is_square) 
+{
+    Rectangle rect = is_square ? fit_square(boundary) : gui_fit_rect(boundary, video->rect);
+    DrawTexturePro(video->texture, video->rect, rect, Vector2Zero(), 0, WHITE);
+}
+#endif // PLATFORM_WEB
+
+static Video pairs_video = {0};
+static Video sequence_video = {0};
+static int mouse_cursor = MOUSE_CURSOR_DEFAULT;
+static Font font = {0};
+
 
 void init_menu_game(void)
 {
-    if (!sequence_video.loaded) load_video(&sequence_video, "./assets/videos/sequence.mpeg");
-    //if (!pairs_video.loaded) load_video(&pairs_video, "./assets/videos/pairs.mpeg");
+    if (!sequence_video.loaded) load_video(&sequence_video, SEQUENCE_VIDEO_FILE_PATH);
+    if (!pairs_video.loaded) load_video(&pairs_video, PAIRS_VIDEO_FILE_PATH);
     if (!IsFontValid(font)) font = LoadFontEx(FONT_FILE_PATH, MENU_TEXT_SIZE, NULL, 0);
 }
 
 
-bool draw_game_button(Rectangle rect, Video *video, char *text)
+bool draw_game_button(Rectangle rect, Video *video, bool is_square, char *text)
 {
     bool is_hovered = CheckCollisionPointRec(GetMousePosition(), rect);
     layout_begin(GUI_LAYOUT_VERTICAL, rect, 4, 5, 0);
-    Rectangle sequence_slot = layout_slot_ex(3);
+    Rectangle video_slot = layout_slot_ex(3);
     Rectangle text_bound = layout_slot();
     gui_draw_text_centered(font, text, text_bound, MENU_TEXT_SIZE, 5, WHITE);
-    DrawTexturePro(video->texture, video->rect, fit_square(sequence_slot), Vector2Zero(), 0, WHITE);
+    draw_video(video, video_slot, is_square);
 
     if (is_hovered) {
         mouse_cursor = MOUSE_CURSOR_POINTING_HAND;
@@ -138,14 +170,14 @@ GameScreen draw_menu_screen(void)
     gui_draw_text_centered(font, "MemeC", layout_slot(), 60, 6, WHITE);
     ///////////////////
     layout_begin(GUI_LAYOUT_HORIZONTAL, layout_slot_ex(3), 2, 10, 10);
-    bool pairs_button_pressed = draw_game_button(layout_slot(), &pairs_video, "Pairs");
-    bool sequece_button_pressed = draw_game_button(layout_slot(), &sequence_video, "Sequence");
+    bool pairs_button_pressed = draw_game_button(layout_slot(), &pairs_video, false, "Pairs");
+    bool sequence_button_pressed = draw_game_button(layout_slot(), &sequence_video, true, "Sequence");
     layout_end();
     ///////////////////
     layout_end();
     ///////////////////
 
-    if (IsKeyPressed(KEY_S) || sequece_button_pressed) {
+    if (IsKeyPressed(KEY_S) || sequence_button_pressed) {
         return SEQUENCE;
     } else if (IsKeyPressed(KEY_P) || pairs_button_pressed) {
         return PAIRS;

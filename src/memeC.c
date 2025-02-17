@@ -1,17 +1,34 @@
 #include "raylib.h"
 #include "screens.h"
 
-#define PL_MPEG_IMPLEMENTATION
-#include "pl_mpeg.h"
-
 #define GUI_IMPLEMENTATION
 #include "gui.h"
+
+#ifdef PLATFORM_WEB
+extern unsigned char __heap_base;
+
+unsigned int bump_pointer = (int)(int*)&__heap_base;
+void *_Nullable malloc(size_t n) {
+    unsigned int r = bump_pointer;
+    bump_pointer += n;
+    return (void*)r;
+}
+
+void *_Nullable realloc(void *_Nullable ptr, size_t size) {
+    return malloc(size);
+}
+
+void free(void *_Nullable p) {
+  // lol
+}
+#endif // PLATFORM_WEB
 
 static GameScreen current_screen = MENU;
 static int mouse_cursor = MOUSE_CURSOR_DEFAULT;
 
 static void update_draw_frame(void);
 static void change_to_screen(int screen);
+void raylib_js_set_entry(void (*entry)(void));
 
 
 int main(void)
@@ -22,12 +39,18 @@ int main(void)
     InitWindow(800, 600, "memeC");
 
     change_to_screen(MENU);
-
+    
+#ifdef PLATFORM_WEB
+    raylib_js_set_entry(update_draw_frame);
+#else
     while (!WindowShouldClose()) {
         update_draw_frame();
     }
 
     CloseWindow();
+#endif
+
+    return 0;
 }
 
 void set_mouse_cursor(int cursor)

@@ -2,6 +2,8 @@
 #define GUI_H_
 
 #include "raylib.h"
+#include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 
 #ifndef GUI_ASSERT
@@ -66,7 +68,7 @@ Rectangle layout_slot_loc(Layout *l, const char *file_path, int line, int slots_
 {
     if (l->i + slots_number > l->count) {
         fprintf(stderr, "%s:%d: ERROR: Layout overflow\n", file_path, line);
-        exit(1);
+        assert(false && "Layout overflow");
     }
 
     Rectangle r = {0};
@@ -116,8 +118,8 @@ void layout_stack_push(LayoutStack *ls, LayoutOrient orient, Rectangle rect, siz
 Rectangle screen_rect(void)
 {
     Rectangle root = {0};
-    root.width = GetRenderWidth();
-    root.height = GetRenderHeight();
+    root.width = GetScreenWidth();
+    root.height = GetScreenHeight();
     return root;
 }
 
