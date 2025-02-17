@@ -750,6 +750,22 @@ class RaylibJs {
         this.ctx.drawImage(this.videos[video[0]], x, y, width, height);
     }
 
+    draw_number_centered(number, posX, posY, width, height, fontSize, color_ptr) {
+        const buffer = this.wasm.instance.exports.memory.buffer;
+        const color = getColorFromMemory(buffer, color_ptr);
+
+        fontSize *= this.#FONT_SCALE_MAGIC;
+        this.ctx.fillStyle = color;
+        this.ctx.font = `${fontSize}px grixel`;
+        
+        const text = `${number}`; 
+        const text_width = this.ctx.measureText(text).width;
+        const x = posX + width/2 - text_width/2;
+        const y = posY + height/2 - fontSize/2;
+        
+        this.ctx.fillText(text, x, y + fontSize);
+    }
+
     assert(expr) {
         if (expr === false) {
             throw new Error('assert', expr)

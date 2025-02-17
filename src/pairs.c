@@ -164,6 +164,24 @@ void cell_event_handler(Cell *cell, bool is_cell_hovered)
     }
 }
 
+#ifdef PLATFORM_WEB
+
+
+void draw_number_centered(int number, int x, int y, int cell_width, int cell_height, int font_size, Color color);
+
+#else
+
+void draw_number_centered(int number, int x, int y, int cell_width, int cell_height, int font_size, Color color)
+{
+    const char *text = TextFormat("%d", number);
+    int text_size = MeasureText(text, font_size);
+    int tx = (x + cell_width/2) - text_size/2;
+    int ty = (y + cell_height/2) - font_size/2;
+    DrawText(text, tx, ty, font_size, color);
+}
+
+#endif
+
 
 void draw_pairs_field(void)
 {
@@ -193,11 +211,7 @@ void draw_pairs_field(void)
 
             if (cell->open) {
                 int font_size = 50;
-                const char *text = TextFormat("%d", cell->value);
-                int text_size = MeasureText(text, font_size);
-                int tx = (x + CELL_SIZE/2) - text_size/2;
-                int ty = (y + CELL_SIZE/2) - font_size/2;
-                DrawText(text, tx, ty, font_size, TEXT_COLOR);
+                draw_number_centered(cell->value, x, y, CELL_SIZE, CELL_SIZE, font_size, TEXT_COLOR);
             }
 
             if (game.state == STATE_USER_TURN) {
