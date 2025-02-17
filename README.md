@@ -1,8 +1,8 @@
 # memeC
 
-This is memory game in C.
+This is **me**mory ga**me** in **C**.
 
-# Bulding
+## Bulding
 
 ```console
 $ ./build.sh
@@ -17,6 +17,6 @@ $ python -m http.server 8000
 
 And go to http://localhost:8000.
  
-# Dependencies
+## Dependencies
 * [raylib](https://www.raylib.com/)
 * [pl_mpeg](https://github.com/phoboslab/pl_mpeg)
