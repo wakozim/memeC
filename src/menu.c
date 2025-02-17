@@ -5,10 +5,12 @@
 #include "gui.h"
 #include "screens.h"
 
+#define FONT_FILE_PATH "assets/fonts/IosevkaNerdFontMono-Regular.ttf"
+
 #define BACKGROUND_COLOR ColorFromHSV(0, 0.00f, 0.10f)
 #define TEXT_COLOR       GREEN
 
-#define MENU_TEXT_SIZE 30
+#define MENU_TEXT_SIZE 60
 
 typedef struct Video {
     plm_t *plm;
@@ -28,6 +30,7 @@ typedef struct Video {
 static Video pairs_video = {0};
 static Video sequence_video = {0};
 static int mouse_cursor = MOUSE_CURSOR_DEFAULT;
+static Font font = {0};
 
 
 bool load_video(Video *video, const char *file_path)
@@ -96,7 +99,8 @@ void update_video(Video *video)
 void init_menu_game(void)
 {
     if (!sequence_video.loaded) load_video(&sequence_video, "./assets/videos/sequence.mpeg");
-    if (!pairs_video.loaded) load_video(&pairs_video, "./assets/videos/pairs.mpeg");
+    //if (!pairs_video.loaded) load_video(&pairs_video, "./assets/videos/pairs.mpeg");
+    if (!IsFontValid(font)) font = LoadFontEx(FONT_FILE_PATH, MENU_TEXT_SIZE, NULL, 0);
 }
 
 
@@ -106,7 +110,7 @@ bool draw_game_button(Rectangle rect, Video *video, char *text)
     layout_begin(GUI_LAYOUT_VERTICAL, rect, 4, 5, 0);
     Rectangle sequence_slot = layout_slot_ex(3);
     Rectangle text_bound = layout_slot();
-    gui_draw_text_centered(GetFontDefault(), text, text_bound, 50, 5, WHITE);
+    gui_draw_text_centered(font, text, text_bound, MENU_TEXT_SIZE, 5, WHITE);
     DrawTexturePro(video->texture, video->rect, fit_square(sequence_slot), Vector2Zero(), 0, WHITE);
 
     if (is_hovered) {
@@ -131,7 +135,7 @@ GameScreen draw_menu_screen(void)
     ClearBackground(BACKGROUND_COLOR);
     ///////////////////
     layout_begin(GUI_LAYOUT_VERTICAL, screen_rect(), 4, 10, 0);
-    gui_draw_text_centered(GetFontDefault(), "MemeC", layout_slot(), 60, 6, WHITE);
+    gui_draw_text_centered(font, "MemeC", layout_slot(), 60, 6, WHITE);
     ///////////////////
     layout_begin(GUI_LAYOUT_HORIZONTAL, layout_slot_ex(3), 2, 10, 10);
     bool pairs_button_pressed = draw_game_button(layout_slot(), &pairs_video, "Pairs");
