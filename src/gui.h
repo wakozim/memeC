@@ -53,6 +53,7 @@ void layout_stack_push(LayoutStack *ls, LayoutOrient orient, Rectangle rect, siz
 
 Rectangle screen_rect(void);
 Rectangle fit_square(Rectangle r);
+Rectangle gui_fit_rect(Rectangle source, Rectangle dest);
 void gui_draw_text_centered(Font font, char *text, Rectangle boundary, float font_size, float spacing, Color tint);
 
 #endif // GUI_H_
@@ -149,6 +150,30 @@ void gui_draw_text_centered(Font font, char *text, Rectangle boundary, float fon
         .y = boundary.y + boundary.height/2 - text_size.y/2     
     };
     DrawTextEx(font, text, position, font_size, spacing, tint);
+}
+
+Rectangle gui_fit_rect(Rectangle outer, Rectangle inner) {
+    float width_scale = outer.width / inner.width;
+    float height_scale = outer.height / inner.height;
+
+    float scale = width_scale < height_scale ? width_scale : height_scale;
+
+    Rectangle rect = {
+        .x = 0,
+        .y = 0,
+        .width = inner.width,
+        .height = inner.height
+    };
+
+    if (inner.width > outer.width || inner.height > outer.height) {
+        rect.width = inner.width * scale;
+        rect.height = inner.height * scale;
+    }
+
+    rect.x = outer.x + (outer.width - rect.width) / 2;
+    rect.y = outer.y + (outer.height - rect.height) / 2;
+
+    return rect;
 }
 
 #endif // GUI_IMPLEMENTATION
