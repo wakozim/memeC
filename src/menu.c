@@ -4,6 +4,9 @@
 #include "gui.h"
 #include "screens.h"
 
+
+#define ARRAY_LEN(array) (sizeof(array)/sizeof(array[0]))
+
 // Assets
 #define FONT_FILE_PATH "assets/fonts/IosevkaNerdFontMono-Regular.ttf"
 
@@ -13,6 +16,7 @@
 
 // Params
 #define MENU_TEXT_SIZE 60
+
 
 #ifdef PLATFORM_WEB
 
@@ -122,16 +126,30 @@ void draw_video(Video *video, Rectangle boundary, bool is_square)
 }
 #endif // PLATFORM_WEB
 
-static Video pairs_video = {0};
-static Video sequence_video = {0};
+typedef struct VideoButton {
+    char *file_path;
+    char *name;
+    bool is_square;
+    GameScreen screen;
+    KeyboardKey key;
+    Video video;
+} VideoButton;
+
+static VideoButton video_buttons[] = {
+    { .file_path = PAIRS_VIDEO_FILE_PATH,    .name = "Pairs",    .is_square = true,  .screen = PAIRS,    .key = KEY_P },
+    { .file_path = SEQUENCE_VIDEO_FILE_PATH, .name = "Sequence", .is_square = false, .screen = SEQUENCE, .key = KEY_S },
+};
+
 static int mouse_cursor = MOUSE_CURSOR_DEFAULT;
 static Font font = {0};
 
 
 void init_menu_game(void)
 {
-    if (!sequence_video.loaded) load_video(&sequence_video, SEQUENCE_VIDEO_FILE_PATH);
-    if (!pairs_video.loaded) load_video(&pairs_video, PAIRS_VIDEO_FILE_PATH);
+    for (size_t i = 0; i < ARRAY_LEN(video_buttons); ++i) {
+        if (!video_buttons[i].video.loaded) load_video(&video_buttons[i].video, video_buttons[i].file_path);
+    }
+    
     if (!IsFontValid(font)) font = LoadFontEx(FONT_FILE_PATH, MENU_TEXT_SIZE, NULL, 0);
 }
 
@@ -161,27 +179,23 @@ GameScreen draw_menu_screen(void)
     GameScreen result = MENU;
     mouse_cursor = MOUSE_CURSOR_DEFAULT;
 
-    update_video(&sequence_video);
-    update_video(&pairs_video);
+    for (size_t i = 0; i < ARRAY_LEN(video_buttons); ++i) {
+        update_video(&video_buttons[i].video);
+    }
 
     ClearBackground(BACKGROUND_COLOR);
-    ///////////////////
     layout_begin(GUI_LAYOUT_VERTICAL, screen_rect(), 4, 10, 0);
-    gui_draw_text_centered(font, "MemeC", layout_slot(), 60, 6, WHITE);
-    ///////////////////
-    layout_begin(GUI_LAYOUT_HORIZONTAL, layout_slot_ex(3), 2, 10, 10);
-    bool pairs_button_pressed = draw_game_button(layout_slot(), &pairs_video, false, "Pairs");
-    bool sequence_button_pressed = draw_game_button(layout_slot(), &sequence_video, true, "Sequence");
+        gui_draw_text_centered(font, "MemeC", layout_slot(), 60, 6, WHITE);
+        layout_begin(GUI_LAYOUT_HORIZONTAL, layout_slot_ex(3), ARRAY_LEN(video_buttons), 10, 10);
+            for (size_t i = 0; i < ARRAY_LEN(video_buttons); ++i) {
+                VideoButton *button = &video_buttons[i];
+                bool button_clicked = draw_game_button(layout_slot(), &button->video, button->is_square, button->name);
+                if (button_clicked || IsKeyPressed(button->key)) {
+                    result = button->screen;
+                }
+            }
+        layout_end();
     layout_end();
-    ///////////////////
-    layout_end();
-    ///////////////////
-
-    if (IsKeyPressed(KEY_S) || sequence_button_pressed) {
-        return SEQUENCE;
-    } else if (IsKeyPressed(KEY_P) || pairs_button_pressed) {
-        return PAIRS;
-    }
 
     set_mouse_cursor(mouse_cursor);
     return result;
